@@ -214,7 +214,7 @@ function renderResult(i){
     }
   }
   r.innerHTML='<h2>'+label[mode]+'</h2>'
-   +'<div class="frame" id="fr"><img src="images/'+pad(i)+'.jpg" alt="'+NAMES[i]+'" onerror="this.remove();document.getElementById(\'fr\').textContent=\'✦\'"></div>'
+   +'<div class="frame" id="fr"><img src="'+pad(i)+'.jpg" alt="'+NAMES[i]+'" onerror="this.remove();document.getElementById(\'fr\').textContent=\'✦\'"></div>'
    +'<div class="no">'+i+'　'+NAMES[i]+'</div>'
    +'<div class="memo">あなたの1枚は '+i+'番 です。スクショか、メモに残してね。</div>'
    +'<div class="box"><b>絵柄</b>'+c.e+'</div>'
