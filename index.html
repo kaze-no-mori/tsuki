@@ -102,6 +102,12 @@ const pad=i=>String(i).padStart(2,"0");
 let store={};
 try{store=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
+/* 保存したカードは20日で期限切れ(毎月引き直せるように)。時刻のない古い記録は、今の時刻から数える */
+const TTL=20*24*3600*1000;
+if(!store||typeof store!=="object")store={};
+if(!store.t||typeof store.t!=="object")store.t={};
+["new","full"].forEach(k=>{if(typeof store[k]!=="number")return;if(!store.t[k]){store.t[k]=Date.now();return}if(Date.now()-store.t[k]>=TTL){delete store[k];delete store.t[k]}});
+save();
 const card=i=>CARDS[i]||{e:"",n:"文章を準備中です。",f:"文章を準備中です。",a:""};
 const label={new:"新月の1枚",full:"満月の1枚"};
 let mode="new",breaths=0;
@@ -113,7 +119,7 @@ function start(m){
   if(typeof store[m]==="number"){renderResult(store[m]);return}
   breaths=0;$("#bTitle").textContent=label[m];$("#bCount").textContent="0 / 3";$("#bBtn").textContent="吸って、吐いた";show("breath");
 }
-function redraw(){delete store[mode];if(mode==="new")delete store.full;save();start(mode)}
+function redraw(){delete store[mode];delete store.t[mode];if(mode==="new"){delete store.full;delete store.t.full}save();start(mode)}
 
 $("#bBtn").onclick=()=>{
   breaths++;$("#bCount").textContent=breaths+" / 3";
@@ -124,7 +130,7 @@ function openDeck(){
   const d=$("#deck");d.innerHTML="";
   order.forEach(ci=>{
     const b=document.createElement("button");b.className="back";b.type="button";b.setAttribute("aria-label","伏せられた1枚");b.textContent="✦";
-    b.onclick=()=>{b.classList.add("pick");store[mode]=ci;if(mode==="new")delete store.full;save();setTimeout(()=>renderResult(ci),600)};
+    b.onclick=()=>{b.classList.add("pick");store[mode]=ci;store.t[mode]=Date.now();if(mode==="new"){delete store.full;delete store.t.full}save();setTimeout(()=>renderResult(ci),600)};
     d.appendChild(b);
   });
   show("pick");
@@ -227,7 +233,7 @@ function renderResult(i){
    +'<p class="note">占いは、自分の気持ちに気づくきっかけです。ゆるやかに受け取ってくださいね。</p>';
   $("#again").onclick=redraw;$("#toHome").onclick=()=>show("home");
   const p=$("#prev");
-  if(p)p.onchange=()=>{if(p.value!==""){store.new=Number(p.value);save();renderResult(i)}};
+  if(p)p.onchange=()=>{if(p.value!==""){store.new=Number(p.value);store.t.new=Date.now();save();renderResult(i)}};
   show("result");
 }
 
