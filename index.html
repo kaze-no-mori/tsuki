@@ -238,6 +238,8 @@ function renderResult(i){
 }
 
 document.querySelectorAll("[data-start]").forEach(b=>b.onclick=()=>start(b.dataset.start));
+/* ?m=new / ?m=full で、トップ画面を飛ばして直接はじめる */
+try{const q=new URLSearchParams(location.search).get("m");if(q==="new"||q==="full")start(q)}catch(e){}
 </script>
 </body>
 </html>
